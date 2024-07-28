@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f3f3f3, #e2e2e2);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .subscription-form-container {
+            max-width: 500px;
+            padding: 30px;
+            background: #ffffff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .subscription-form-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            text-align: center;
+            color: #007BFF;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            color: #333333;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        select, textarea, input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        select:focus, textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
+            border-color: #007BFF;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 5px 10px rgba(0, 91, 179, 0.3);
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+        }
+
+        #discount-message {
+            color: green;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
+        #total-cost {
+            font-size: 1.2em;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #007BFF;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: #000;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="subscription-form-container">
+        <form id="subscription-form">
+            <h2>Upgrade Your Plan</h2>
+
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" aria-required="true" placeholder="Enter your email">
+
+            <label for="subscription-plan">Subscription Plan</label>
+            <select id="subscription-plan" name="subscription-plan" aria-required="true">
+                <option value="" disabled selected>Select a plan</option>
+                <option value="basic" data-details="Basic Plan: $10/month. Includes basic features.">Basic - $10/month</option>
+                <option value="standard" data-details="Standard Plan: $20/month. Includes standard features.">Standard - $20/month</option>
+                <option value="premium" data-details="Premium Plan: $30/month. Includes all features.">Premium - $30/month</option>
+            </select>
+            <p id="plan-details"></p>
+
+            <label for="payment-method">Payment Method</label>
+            <select id="payment-method" name="payment-method" aria-required="true">
+                <option value="" disabled selected>Select a payment method</option>
+                <option value="credit-card">Credit Card</option>
+                <option value="paypal">PayPal</option>
+                <option value="bank-transfer">Bank Transfer</option>
+            </select>
+
+            <div id="payment-details"></div>
+
+            <label for="billing-address">Billing Address</label>
+            <textarea id="billing-address" name="billing-address" rows="4" aria-required="true"></textarea>
+            <p id="address-validation-message" class="error-message"></p>
+
+            <label for="discount-code">Discount Code</label>
+            <input type="text" id="discount-code" name="discount-code" placeholder="Enter discount code" aria-describedby="discount-message">
+
+            <button type="button" id="apply-discount-btn">Apply Discount</button>
+            <p id="discount-message"></p>
+
+            <p id="total-cost">Total: $0.00</p>
+
+            <button type="submit">Subscribe</button>
+            <button type="button" id="reset-btn">Reset</button>
+        </form>
+    </div>
+
+    <div id="confirmation-modal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <span class="close-btn" aria-label="Close">&times;</span>
+            <p>Are you sure you want to subscribe?</p>
+            <button id="confirm-subscription-btn">Confirm</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const subscriptionForm = document.getElementById('subscription-form');
+            const emailInput = document.getElementById('email');
+            const paymentMethodSelect = document.getElementById('payment-method');
+            const paymentDetails = document.getElementById('payment-details');
+            const discountButton = document.getElementById('apply-discount-btn');
+            const discountCodeInput = document.getElementById('discount-code');
+            const discountMessage = document.getElementById('discount-message');
+            const totalCostElement = document.getElementById('total-cost');
+            const addressValidationMessage = document.getElementById('address-validation-message');
+            const subscriptionPlanSelect = document.getElementById('subscription-plan');
+            const planDetails = document.getElementById('plan-details');
+            const resetButton = document.getElementById('reset-btn');
+            const confirmationModal = document.getElementById('confirmation-modal');
+            const closeBtn = document.querySelector('.close-btn');
+            const confirmSubscriptionBtn = document.getElementById('confirm-subscription-btn');
+
+            const discountCodes = {
+                'SAVE10': { discount: 0.10, expires: new Date('2024-12-31') },
+                'SAVE20': { discount: 0.20, expires: new Date('2024-06-30') }
+            };
+
+            const planCosts = {
+                'basic': 10,
+                'standard': 20,
+                'premium': 30
+            };
+
+            function updateTotalCost() {
+                const selectedPlan = subscriptionPlanSelect.value;
+                let totalCost = planCosts[selectedPlan] || 0;
+                const discountCode = discountCodeInput.value.toUpperCase();
+                const discount = discountCodes[discountCode];
+
+                if (discount && discount.expires > new Date()) {
+                    totalCost -= totalCost * discount.discount;
+                    discountMessage.textContent = `Discount applied: ${discount.discount * 100}% off`;
+                    discountMessage.style.color = 'green';
+                } else if (discount) {
+                    discountMessage.textContent = 'Discount code expired';
+                    discountMessage.style.color = 'red';
+                } else {
+                    discountMessage.textContent = 'Invalid discount code';
+                    discountMessage.style.color = 'red';
+                }
+
+                totalCostElement.textContent = `Total: $${totalCost.toFixed(2)}`;
+            }
+
+            function validateAddress() {
+                const address = document.getElementById('billing-address').value;
+                if (address.length < 10) {
+                    addressValidationMessage.textContent = 'Address must be at least 10 characters long.';
+                    return false;
+                }
+                addressValidationMessage.textContent = '';
+                return true;
+            }
+
+            paymentMethodSelect.addEventListener('change', () => {
+                const selectedMethod = paymentMethodSelect.value;
+                if (selectedMethod === 'credit-card') {
+                    paymentDetails.innerHTML = `
+                        <label for="card-number">Card Number</label>
+                        <input type="text" id="card-number" name="card-number" required>
+                        
+                        <label for="expiry-date">Expiry Date</label>
+                        <input type="text" id="expiry-date" name="expiry-date" placeholder="MM/YY" required>
+                        
+                        <label for="cvv">CVV</label>
+                        <input type="text" id="cvv" name="cvv" required>
+                    `;
+                } else if (selectedMethod === 'paypal') {
+                    paymentDetails.innerHTML = `
+                        <label for="paypal-email">PayPal Email</label>
+                        <input type="email" id="paypal-email" name="paypal-email" required>
+                    `;
+                } else if (selectedMethod === 'bank-transfer') {
+                    paymentDetails.innerHTML = `
+                        <p>Please proceed with the bank transfer to the following account:</p>
+                        <p>Account Number: 123456789<br>Bank: Example Bank<br>SWIFT Code: EXAMPLE123</p>
+                    `;
+                } else {
+                    paymentDetails.innerHTML = '';
+                }
+            });
+
+            discountButton.addEventListener('click', () => {
+                updateTotalCost();
+            });
+
+            subscriptionPlanSelect.addEventListener('change', (event) => {
+                const selectedOption = event.target.selectedOptions[0];
+                planDetails.textContent = selectedOption.dataset.details || '';
+                updateTotalCost();
+            });
+
+            resetButton.addEventListener('click', () => {
+                subscriptionForm.reset();
+                paymentDetails.innerHTML = '';
+                discountMessage.textContent = '';
+                totalCostElement.textContent = 'Total: $0.00';
+                addressValidationMessage.textContent = '';
+                planDetails.textContent = '';
+            });
+
+            subscriptionForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                if (!validateAddress()) {
+                    return;
+                }
+
+                confirmationModal.style.display = 'block';
+            });
+
+            closeBtn.onclick = () => {
+                confirmationModal.style.display = 'none';
+            };
+
+            confirmSubscriptionBtn.onclick = () => {
+                confirmationModal.style.display = 'none';
+                alert('Subscription confirmed!');
+            };
+
+            window.onclick = (event) => {
+                if (event.target == confirmationModal) {
+                    confirmationModal.style.display = 'none';
+                }
+            };
+        });
+    </script>
+</body>
+</html>
